@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Green Growth Indicators · Moldova</title>
+<meta name="description" content="Interactive bilingual dashboard of green growth indicators for the Republic of Moldova, based on the OECD framework.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --green:#2E7D32; --dgreen:#1B5E20; --green2:#66BB6A; --leaf:#EAF3EA;
+  --blue:#1565C0; --orange:#E65100; --red:#C62828; --amber:#EF6C00;
+  --ink:#1B2A1B; --muted:#5d6b5d; --line:#e2e8e2; --bg:#f5f8f5; --card:#ffffff;
+  --shadow:0 1px 3px rgba(20,40,20,.08),0 6px 20px rgba(20,40,20,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--green);text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* header */
+header.site{background:linear-gradient(135deg,#1B5E20 0%,#2E7D32 55%,#388E3C 100%);color:#fff;
+  position:relative;overflow:hidden}
+header.site::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;
+  background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%)}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0 8px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.16);
+  display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.25)}
+h1.title{font-size:20px;margin:0;font-weight:700;letter-spacing:.2px}
+.subtitle{font-size:13.5px;opacity:.92;margin:2px 0 0}
+.edition{font-size:12px;opacity:.8;margin-top:2px}
+.langtog{display:flex;background:rgba(255,255,255,.14);border-radius:999px;padding:3px;border:1px solid rgba(255,255,255,.22)}
+.langtog button{border:0;background:transparent;color:#fff;padding:6px 14px;border-radius:999px;cursor:pointer;
+  font-weight:600;font-size:13px;opacity:.8;transition:.15s}
+.langtog button.on{background:#fff;color:var(--dgreen);opacity:1}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:18px 0 26px}
+.kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:13px 14px;color:#fff}
+.kpi .v{font-size:21px;font-weight:800;letter-spacing:.3px;display:flex;align-items:baseline;gap:6px}
+.kpi .u{font-size:11px;opacity:.85;font-weight:600}
+.kpi .l{font-size:11.5px;opacity:.92;margin-top:3px}
+.kpi .tr{font-size:13px;font-weight:800}
+.tr.up{color:#A5D6A7}.tr.down{color:#FFCDD2}.tr.flat{color:#E0E0E0}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(20,40,20,.04)}
+.navin{display:flex;gap:8px;overflow-x:auto;padding:11px 0;scrollbar-width:none}
+.navin::-webkit-scrollbar{display:none}
+.pill{white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--muted);
+  padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.pill:hover{border-color:var(--green2);color:var(--dgreen)}
+.pill.on{background:var(--green);border-color:var(--green);color:#fff}
+
+/* sections */
+.section{padding:30px 0 6px}
+.sechead{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.secnum{width:30px;height:30px;border-radius:9px;background:var(--leaf);color:var(--dgreen);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.sechead h2{font-size:19px;margin:0;color:var(--dgreen)}
+.seccount{font-size:12.5px;color:var(--muted);margin:0 0 16px 42px}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px 18px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;transition:.18s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(20,40,20,.12)}
+.crow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.cid{font-size:11px;font-weight:800;color:var(--green);background:var(--leaf);border-radius:6px;padding:2px 7px}
+.cname{font-size:15.5px;font-weight:700;margin:6px 0 0;color:var(--ink)}
+.cunit{font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border-radius:999px;
+  padding:4px 10px;white-space:nowrap}
+.chip.good{background:#E8F5E9;color:#2E7D32}
+.chip.bad{background:#FDECEA;color:#C62828}
+.chip.neu{background:#ECEFF1;color:#546E7A}
+.cval{font-size:18px;font-weight:800;margin:2px 0 8px;color:var(--dgreen)}
+.chartbox{position:relative;height:150px;margin:2px 0 10px}
+.nochart{height:54px;display:flex;align-items:center;justify-content:center;background:var(--leaf);
+  border-radius:10px;color:var(--muted);font-size:12px;margin:2px 0 10px;text-align:center;padding:0 10px}
+.interp{font-size:13px;color:#34433a;margin:0 0 12px;flex:1}
+.cfoot{font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;
+  display:flex;justify-content:space-between;gap:8px}
+.cfoot .yr{font-weight:700;color:var(--green)}
+
+/* methodology + footer */
+.meth{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:28px 0;box-shadow:var(--shadow)}
+.meth h3{margin:0 0 8px;color:var(--dgreen);font-size:16px}
+.meth p{margin:0;font-size:13px;color:#34433a}
+footer.site{background:#16241a;color:#cfe0d2;padding:26px 0 34px;margin-top:10px}
+footer.site .wrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
+footer .fn{font-size:12px;max-width:680px;opacity:.86}
+.dl{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;padding:10px 16px;
+  border-radius:10px;font-weight:700;font-size:13px}
+.dl:hover{background:#43A047}
+.flag{font-size:12px;opacity:.7;margin-top:10px}
+
+@media(max-width:880px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .grid{grid-template-columns:1fr}
+  h1.title{font-size:17px}.subtitle{font-size:12px}
+}
+@media(max-width:520px){ .kpis{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand">
+        <div class="logo">🌿</div>
+        <div>
+          <h1 class="title" id="ui-title"></h1>
+          <div class="subtitle" id="ui-subtitle"></div>
+          <div class="edition" id="ui-edition"></div>
+        </div>
+      </div>
+      <div class="langtog">
+        <button id="lang-ro" onclick="setLang('ro')">RO</button>
+        <button id="lang-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+</header>
+<div class="nav"><div class="wrap"><div class="navin" id="nav"></div></div></div>
+<main class="wrap" id="main"></main>
+<div class="wrap"><div class="meth"><h3 id="ui-meth-title"></h3><p id="ui-meth-text"></p></div></div>
+<footer class="site"><div class="wrap">
+  <div class="fn" id="ui-footer"></div>
+  <a class="dl" href="Raport_Crestere_Verde_Moldova_2026.pdf" id="ui-download">⬇ <span></span></a>
+</div></footer>
+
+<script>
+const DATA = {"cats": [{"id": 1, "ro": "Metodologie", "en": "Methodology"}, {"id": 2, "ro": "Context socioeconomic", "en": "Socioeconomic context"}, {"id": 3, "ro": "Productivitatea resurselor și de mediu", "en": "Resource & environmental productivity"}, {"id": 4, "ro": "Baza resurselor naturale", "en": "Natural asset base"}, {"id": 5, "ro": "Dimensiunea de mediu a calității vieții", "en": "Environmental quality of life"}, {"id": 6, "ro": "Oportunități economice și politici", "en": "Economic opportunities & policy"}], "kpis": [{"val_ro": "16 377", "val_en": "16,377", "unit": "USD PPC", "trend": "up", "good": true, "ro": "PIB per capita (2024)", "en": "GDP per capita (2024)"}, {"val_ro": "2,40 mil.", "val_en": "2.40 M", "unit": "", "trend": "down", "good": false, "ro": "Populația (2024)", "en": "Population (2024)"}, {"val_ro": "71,3", "val_en": "71.3", "unit": "ani / yrs", "trend": "up", "good": true, "ro": "Speranța de viață (2024)", "en": "Life expectancy (2024)"}, {"val_ro": "11,7", "val_en": "11.7", "unit": "Mt CO₂e", "trend": "down", "good": true, "ro": "Emisii GES (2023)", "en": "GHG emissions (2023)"}, {"val_ro": "326", "val_en": "326", "unit": "MW", "trend": "up", "good": true, "ro": "Capacitate eolian+solar (2026)", "en": "Wind+solar capacity (2026)"}, {"val_ro": "75,8%", "val_en": "75.8%", "unit": "", "trend": "up", "good": true, "ro": "Acces apă sigură (2024)", "en": "Safe water access (2024)"}], "indicators": [{"id": "2.1", "cat": 2, "ro": "Creșterea PIB", "en": "GDP growth", "unit_ro": "% anual", "unit_en": "% annual", "chart": "bar", "series": [[2010, 7.1], [2011, 5.8], [2012, -0.6], [2013, 9.0], [2014, 5.0], [2015, -0.3], [2016, 4.6], [2017, 4.2], [2018, 4.1], [2019, 3.6], [2020, -8.3], [2021, 13.9], [2022, -4.6], [2023, 1.2], [2024, 0.1]], "latest": "+0,1% (2024)", "trend": "flat", "good": false, "src": "World Bank", "year": "2024", "ro_t": "După recesiunea pandemică (−8,3% în 2020) și revenirea din 2021 (+13,9%), economia a recăzut în 2022 (−4,6%) pe fondul crizei energetice și al secetei, urmând o cvasi-stagnare în 2023–2024. Volatilitatea reflectă expunerea ridicată la șocuri climatice, energetice și geopolitice.", "en_t": "After the pandemic recession (−8.3% in 2020) and the 2021 rebound (+13.9%), the economy contracted again in 2022 (−4.6%) amid the energy crisis and drought, followed by near-stagnation in 2023–2024. The volatility reflects high exposure to climate, energy and geopolitical shocks."}, {"id": "2.1b", "cat": 2, "ro": "PIB per capita (PPC)", "en": "GDP per capita (PPP)", "unit_ro": "USD internațional 2021", "unit_en": "2021 international $", "chart": "line", "series": [[2010, 9650], [2011, 10217], [2012, 10158], [2013, 11080], [2014, 11641], [2015, 11691], [2016, 12377], [2017, 13119], [2018, 13896], [2019, 14621], [2020, 13559], [2021, 15682], [2022, 15358], [2023, 15990], [2024, 16377]], "latest": "16 377 (2024)", "trend": "up", "good": true, "src": "World Bank", "year": "2024", "ro_t": "PIB-ul per capita a atins circa 16 400 USD PPC în 2024, în creștere față de 2020, dar rămâne cel mai scăzut din Europa. Convergența cu statele din regiune întârzie, iar nivelul de trai progresează lent.", "en_t": "GDP per capita reached about USD 16,400 PPP in 2024, up from 2020 but still the lowest in Europe. Convergence with regional peers remains elusive and living standards improve only slowly."}, {"id": "2.2", "cat": 2, "ro": "Structura PIB", "en": "GDP structure", "unit_ro": "% din PIB", "unit_en": "% of GDP", "chart": null, "series": null, "latest": "Agricultură ~9–10%", "trend": "flat", "good": null, "src": "BNS", "year": "2023", "ro_t": "Structura economică nu s-a schimbat semnificativ: comerțul rămâne principalul contribuitor, urmat de industria prelucrătoare, în timp ce ponderea agriculturii continuă să scadă (~9–10%). Construcțiile, transportul și IT-ul își consolidează pozițiile.", "en_t": "The economic structure is largely unchanged: trade remains the leading contributor, followed by manufacturing, while agriculture's share keeps falling (~9–10%). Construction, transport and IT are gaining ground."}, {"id": "2.3", "cat": 2, "ro": "Populația economic activă", "en": "Economically active population", "unit_ro": "mii persoane", "unit_en": "thousand persons", "chart": null, "series": null, "latest": "889,1 mii (2024)", "trend": "down", "good": false, "src": "BNS — AFM", "year": "2024", "ro_t": "Populația activă a fost de 889,1 mii persoane în 2024 (−4,3% față de 2023), iar rata de activitate (15–64 ani) de doar 54,6% — una dintre cele mai reduse din Europa, reflectând emigrarea și ocuparea informală.", "en_t": "The active population stood at 889.1 thousand in 2024 (−4.3% vs 2023), with an activity rate (15–64) of just 54.6% — among the lowest in Europe, reflecting emigration and informal employment."}, {"id": "2.4", "cat": 2, "ro": "Șomajul", "en": "Unemployment", "unit_ro": "% (BIM)", "unit_en": "% (ILO)", "chart": null, "series": null, "latest": "4,0% (2024)", "trend": "down", "good": true, "src": "BNS — AFM", "year": "2024", "ro_t": "Rata șomajului (BIM) a coborât la 4,0% în 2024. Indicatorul rămâne puțin relevant pentru tensiunile reale de pe piața muncii, dat fiind salariul de rezervare ridicat, munca peste hotare și ocuparea informală.", "en_t": "The ILO unemployment rate fell to 4.0% in 2024. The indicator remains of limited relevance to real labour-market tensions, given high reservation wages, work abroad and informal employment."}, {"id": "2.5", "cat": 2, "ro": "Populația", "en": "Population", "unit_ro": "milioane", "unit_en": "millions", "chart": "line", "series": [[2010, 2.862], [2011, 2.861], [2012, 2.86], [2013, 2.86], [2014, 2.858], [2015, 2.836], [2016, 2.803], [2017, 2.755], [2018, 2.707], [2019, 2.664], [2020, 2.635], [2021, 2.596], [2022, 2.529], [2023, 2.458], [2024, 2.402]], "latest": "2,40 mil. (2024)", "trend": "down", "good": false, "src": "World Bank / BNS", "year": "2024", "ro_t": "Populația cu reședință obișnuită a scăzut la circa 2,40 milioane în 2024, cu peste 230 000 de persoane mai puțin decât în 2019. Depopularea, alimentată de emigrare și sporul natural negativ, afectează preponderent zonele rurale.", "en_t": "The usually-resident population fell to about 2.40 million in 2024, over 230,000 fewer than in 2019. Depopulation, driven by emigration and negative natural growth, mainly affects rural areas."}, {"id": "2.6", "cat": 2, "ro": "Densitatea populației", "en": "Population density", "unit_ro": "persoane/km²", "unit_en": "persons/km²", "chart": "line", "series": [[2010, 96.4], [2011, 96.4], [2012, 96.4], [2013, 96.3], [2014, 96.3], [2015, 95.5], [2016, 94.4], [2017, 92.8], [2018, 91.2], [2019, 89.8], [2020, 88.8], [2021, 87.5], [2022, 85.2], [2023, 82.8], [2024, 80.9]], "latest": "~81/km² (2024)", "trend": "down", "good": null, "src": "Calcule / BNS", "year": "2024", "ro_t": "Densitatea a coborât la circa 81 de persoane pe km² în 2024, de la circa 89 în 2020, urmând declinul demografic. Tendința accentuează provocările fiscale și de furnizare a serviciilor în mediul rural.", "en_t": "Density fell to about 81 persons per km² in 2024, from around 89 in 2020, tracking the demographic decline. The trend sharpens fiscal and rural service-delivery challenges."}, {"id": "2.7", "cat": 2, "ro": "Speranța de viață la naștere", "en": "Life expectancy at birth", "unit_ro": "ani", "unit_en": "years", "chart": "line", "series": [[2014, 70.2], [2015, 70.1], [2016, 70.2], [2017, 70.4], [2018, 70.2], [2019, 70.2], [2020, 69.9], [2021, 69.0], [2022, 71.5], [2023, 71.2], [2024, 71.3]], "latest": "71,3 ani (2024)", "trend": "up", "good": true, "src": "World Bank / BNS", "year": "2024", "ro_t": "Speranța de viață a scăzut la 69,0 ani în 2021 (șocul COVID-19), apoi și-a revenit la circa 71,3 ani în 2024. Rămâne cea mai scăzută din Europa, decalajul fiind determinat de factori comportamentali, de mediu și de acces la sănătate.", "en_t": "Life expectancy dropped to 69.0 years in 2021 (the COVID-19 shock), then recovered to about 71.3 years in 2024. It remains the lowest in Europe, with the gap driven by behavioural, environmental and healthcare-access factors."}, {"id": "2.8", "cat": 2, "ro": "Inegalitatea veniturilor (Gini)", "en": "Income inequality (Gini)", "unit_ro": "indice 0–100 (consum)", "unit_en": "index 0–100 (consumption)", "chart": "line", "series": [[2014, 26.8], [2015, 27.0], [2016, 26.3], [2017, 25.9], [2018, 25.7], [2019, 26.0], [2020, 25.0], [2021, 25.7], [2022, 25.9], [2023, 26.8]], "latest": "26,8 (2023)", "trend": "up", "good": false, "src": "World Bank", "year": "2023", "ro_t": "Indicele Gini (pe consum) se menține relativ scăzut, dar a crescut ușor după minimul din 2020 (25,0), ajungând la 26,8 în 2023. Nivelul redus trebuie privit cu prudență, dat fiind veniturile modeste și posibila subraportare a veniturilor înalte.", "en_t": "The (consumption-based) Gini index remains relatively low but ticked up after its 2020 trough (25.0), reaching 26.8 in 2023. The low level should be read with caution given modest incomes and possible under-reporting of high incomes."}, {"id": "2.9", "cat": 2, "ro": "Încadrarea în învățământ", "en": "Education enrolment", "unit_ro": "rata brută, %", "unit_en": "gross rate, %", "chart": null, "series": null, "latest": "în scădere / declining", "trend": "down", "good": null, "src": "BNS", "year": "2023/24", "ro_t": "Ratele de cuprindere rămân bune, dar numărul efectiv de elevi și studenți continuă să scadă din cauza declinului demografic și a emigrării familiilor cu copii.", "en_t": "Enrolment ratios remain good, but the actual number of pupils and students keeps falling due to demographic decline and the emigration of families with children."}, {"id": "3.1", "cat": 3, "ro": "Emisiile de gaze cu efect de seră", "en": "Greenhouse gas emissions", "unit_ro": "mil. tone CO₂e", "unit_en": "Mt CO₂e", "chart": "line2", "series": [[2010, 11.51], [2011, 11.71], [2012, 11.34], [2013, 10.77], [2014, 11.33], [2015, 11.62], [2016, 11.9], [2017, 11.93], [2018, 12.62], [2019, 12.69], [2020, 12.38], [2021, 13.21], [2022, 11.65], [2023, 11.65]], "series2": [[2010, 8.5], [2011, 8.53], [2012, 8.35], [2013, 7.49], [2014, 8.04], [2015, 8.3], [2016, 8.42], [2017, 8.31], [2018, 8.86], [2019, 9.11], [2020, 8.85], [2021, 9.65], [2022, 8.29], [2023, 8.21]], "s1_ro": "Total GES", "s1_en": "Total GHG", "s2_ro": "din care CO₂", "s2_en": "of which CO₂", "latest": "11,7 Mt (2023)", "trend": "down", "good": true, "src": "World Bank (excl. LULUCF)", "year": "2023", "ro_t": "Emisiile au scăzut după 2021 (de la 13,2 la 11,7 mil. tone CO₂e), pe fondul reducerii cererii de energie în timpul crizei, și nu al unei transformări structurale. Ținta NDC vizează −70% până în 2030 față de 1990.", "en_t": "Emissions fell after 2021 (from 13.2 to 11.7 Mt CO₂e), reflecting crisis-driven demand destruction rather than structural change. The NDC targets a 70% cut by 2030 versus 1990."}, {"id": "3.2", "cat": 3, "ro": "Productivitatea CO₂", "en": "CO₂ productivity", "unit_ro": "USD PPC/kg", "unit_en": "USD PPP/kg", "chart": "line", "series": [[2014, 4.14], [2015, 3.99], [2016, 4.12], [2017, 4.35], [2018, 4.25], [2019, 4.28], [2020, 4.04], [2021, 4.22], [2022, 4.68], [2023, 4.79]], "latest": "~4,8 (2023)", "trend": "up", "good": true, "src": "Calcule / World Bank", "year": "2023", "ro_t": "Decuplarea creșterii economice de emisii a continuat și s-a accentuat după 2021: productivitatea CO₂ a urcat la circa 4,8 USD PPC/kg în 2023. Nivelul absolut rămâne însă scăzut față de media europeană.", "en_t": "The decoupling of growth from emissions continued and intensified after 2021: CO₂ productivity rose to about 4.8 USD PPP/kg in 2023. The absolute level nevertheless remains low versus the European average."}, {"id": "3.3", "cat": 3, "ro": "Consumul final de energie", "en": "Final energy consumption", "unit_ro": "mil. tep", "unit_en": "Mtoe", "chart": null, "series": null, "latest": "~2,5 Mtep (2024)", "trend": "flat", "good": null, "src": "BNS — balanța energetică", "year": "2024", "ro_t": "Consumul final de energie s-a menținut în jurul valorii de 2,5 mil. tone echivalent petrol în 2024, cu o restructurare a mixului pe produse și sectoare. Criza energetică a impus economii și a accelerat preocuparea pentru eficiență.", "en_t": "Final energy consumption stayed around 2.5 Mtoe in 2024, with a reshuffling of the mix by product and sector. The energy crisis forced savings and accelerated the focus on efficiency."}, {"id": "3.4", "cat": 3, "ro": "Intensitatea energetică", "en": "Energy intensity", "unit_ro": "tep/PIB", "unit_en": "toe/GDP", "chart": null, "series": null, "latest": "în scădere / declining", "trend": "down", "good": true, "src": "Calcule / BNS", "year": "2023", "ro_t": "Devansarea consumului de energie de către creșterea PIB a condus la o reducere a intensității energetice la nivelul întregii economii, deși nu în toate sectoarele. Eficiența energetică rămâne o pârghie esențială a tranziției verzi.", "en_t": "Growth outpacing energy use has lowered overall energy intensity, though not in every sector. Energy efficiency remains a key lever of the green transition."}, {"id": "3.5", "cat": 3, "ro": "Ponderea energiei regenerabile", "en": "Renewable energy share", "unit_ro": "% din consumul final", "unit_en": "% of final consumption", "chart": "line", "series": [[2010, 20.0], [2011, 20.4], [2012, 22.1], [2013, 23.8], [2014, 24.3], [2015, 24.7], [2016, 25.3], [2017, 26.1], [2018, 25.3], [2019, 22.0], [2020, 22.3], [2021, 21.4]], "latest": "~22% + boom RES", "trend": "up", "good": true, "src": "World Bank / IEA / Min. Energiei", "year": "2021/23", "ro_t": "Ponderea totală rămâne în jur de 22%, dominată de biomasă. Noutatea majoră este creșterea rapidă a energiei eoliene și solare moderne — peste 320 MW instalați la începutul lui 2026 — față de stadiul „embrionar” din ediția anterioară. Ținta 2030: minimum 27%.", "en_t": "The total share remains around 22%, dominated by biomass. The key development is the rapid rise of modern wind and solar power — over 320 MW installed by early 2026 — versus the 'embryonic' stage of the previous edition. The 2030 target is at least 27%."}, {"id": "3.6", "cat": 3, "ro": "Generarea deșeurilor", "en": "Waste generation", "unit_ro": "tendințe", "unit_en": "trends", "chart": null, "series": null, "latest": "producție ↓ / menajere ↑", "trend": "flat", "good": null, "src": "BNS", "year": "2023", "ro_t": "Deșeurile de producție au scăzut după 2015, în timp ce deșeurile menajere au crescut, reflectând un model de consum care continuă să favorizeze generarea de deșeuri.", "en_t": "Industrial waste fell after 2015, while household waste grew, reflecting a consumption model that keeps favouring waste generation."}, {"id": "3.7", "cat": 3, "ro": "Reciclarea deșeurilor", "en": "Waste recycling", "unit_ro": "rată redusă", "unit_en": "low rate", "chart": null, "series": null, "latest": "fără dinamică clară", "trend": "flat", "good": false, "src": "BNS", "year": "2023", "ro_t": "Rata de utilizare (reciclare și valorificare energetică) a deșeurilor rămâne fără o tendință clară și la un nivel redus. Programul național de gestionare a deșeurilor 2023–2027 fixează ținte de aliniere la UE.", "en_t": "The recovery rate (recycling plus energy use) of waste shows no clear trend and stays low. The 2023–2027 national waste programme sets EU-alignment targets."}, {"id": "3.8", "cat": 3, "ro": "Utilizarea fertilizanților", "en": "Fertiliser use", "unit_ro": "mii tone", "unit_en": "thousand tonnes", "chart": null, "series": null, "latest": ">100 mii t (minerali)", "trend": "up", "good": false, "src": "BNS", "year": "2023", "ro_t": "Utilizarea fertilizanților minerali a crescut de circa cinci ori în deceniul precedent, fără o creștere proporțională a producției vegetale — semnal al unor riscuri de eficiență și de poluare a solului și apelor.", "en_t": "Mineral fertiliser use rose roughly fivefold over the past decade without a proportional rise in crop output — a sign of efficiency and soil/water pollution risks."}, {"id": "3.9", "cat": 3, "ro": "Utilizarea apei pe sectoare", "en": "Water use by sector", "unit_ro": "mil. m³", "unit_en": "million m³", "chart": null, "series": null, "latest": "~785 mil. m³, stabil", "trend": "flat", "good": true, "src": "BNS", "year": "2023", "ro_t": "Utilizarea apei s-a menținut stabilă (~785 mil. m³), iar productivitatea apei a crescut odată cu PIB-ul, realizând o decuplare. Nivelul productivității rămâne însă printre cele mai scăzute din Europa.", "en_t": "Water use stayed stable (~785 million m³) and water productivity rose with GDP, achieving a decoupling. Productivity nevertheless remains among the lowest in Europe."}, {"id": "4.1", "cat": 4, "ro": "Resursele de apă (stres hidric)", "en": "Water resources (water stress)", "unit_ro": "%", "unit_en": "%", "chart": "line", "series": [[2014, 12.41], [2015, 12.47], [2016, 12.5], [2017, 12.47], [2018, 12.43], [2019, 12.46], [2020, 12.56], [2021, 12.56]], "latest": "~12,5% (2021)", "trend": "flat", "good": false, "src": "World Bank / FAO", "year": "2021", "ro_t": "Stresul hidric se menține moderat (~12,5%), peste România și Ucraina. Resursele interne sunt limitate, iar volumul mare al apei captate este amplificat de pierderile la transportare și de secetele tot mai frecvente.", "en_t": "Water stress remains moderate (~12.5%), above Romania and Ukraine. Internal resources are limited, and the large volume of abstracted water is amplified by transport losses and increasingly frequent droughts."}, {"id": "4.2", "cat": 4, "ro": "Resursele forestiere", "en": "Forest resources", "unit_ro": "% împădurire", "unit_en": "% forest cover", "chart": "line", "series": [[2010, 11.4], [2011, 11.47], [2012, 11.54], [2013, 11.61], [2014, 11.68], [2015, 11.75], [2016, 11.75], [2017, 11.75], [2018, 11.75], [2019, 11.75], [2020, 11.75], [2021, 11.75], [2022, 11.75]], "latest": "11,7% → țintă 15%", "trend": "up", "good": true, "src": "World Bank / FAO", "year": "2022", "ro_t": "Gradul de împădurire stagnează la circa 11,7%, mult sub media europeană (~30%). Noutatea decisivă: Programul național de extindere și reabilitare a pădurilor 2023–2032 vizează 15% până în 2032, susținut de un împrumut BEI de 200 mil. euro și de circa 14 000 de locuri de muncă rurale.", "en_t": "Forest cover stagnates at about 11.7%, well below the European average (~30%). The decisive development: the 2023–2032 National Forest Extension and Rehabilitation Programme targets 15% by 2032, backed by a €200 million EIB loan and some 14,000 rural jobs."}, {"id": "4.3", "cat": 4, "ro": "Resursele funciare", "en": "Land resources", "unit_ro": "% agricol", "unit_en": "% agricultural", "chart": null, "series": null, "latest": "~62% agricol", "trend": "flat", "good": null, "src": "BNS / Cadastru", "year": "2023", "ro_t": "Fondul funciar este dominat de terenurile agricole (~62%), structura rămânând stabilă. Calitatea solului continuă să fie afectată de eroziune și de lipsa măsurilor de conservare, reducând performanțele agricole.", "en_t": "Land is dominated by agricultural use (~62%), with a stable structure. Soil quality keeps deteriorating from erosion and a lack of conservation measures, reducing farm performance."}, {"id": "4.4", "cat": 4, "ro": "Agricultura ecologică", "en": "Organic agriculture", "unit_ro": "% din suprafața agricolă", "unit_en": "% of farmland", "chart": null, "series": null, "latest": "~1,1%, ~150 operatori", "trend": "down", "good": false, "src": "MAIA", "year": "2023", "ro_t": "Agricultura ecologică rămâne marginală — circa 1,1% din suprafața agricolă și aproximativ 150 de operatori certificați în 2023, în ușoară scădere. Cererea internă limitată și cerințele de certificare frânează dezvoltarea.", "en_t": "Organic farming remains marginal — about 1.1% of agricultural area and roughly 150 certified operators in 2023, slightly declining. Limited domestic demand and certification requirements hold back growth."}, {"id": "4.5", "cat": 4, "ro": "Biodiversitatea", "en": "Biodiversity", "unit_ro": "specii protejate", "unit_en": "protected species", "chart": null, "series": null, "latest": "427 specii (Cartea Roșie)", "trend": "down", "good": false, "src": "Cartea Roșie 2015", "year": "2015", "ro_t": "Numărul speciilor de plante și animale pe cale de dispariție a crescut: ediția 2015 a Cărții Roșii dublează numărul față de 2001. Braconajul și pierderea habitatelor mențin presiunea asupra biodiversității.", "en_t": "The number of endangered plant and animal species has risen: the 2015 Red Book doubles the count versus 2001. Poaching and habitat loss keep biodiversity under pressure."}, {"id": "4.6", "cat": 4, "ro": "Arii naturale protejate", "en": "Protected natural areas", "unit_ro": "% din suprafață", "unit_en": "% of land area", "chart": "bar", "series": [[2014, 4.2], [2015, 4.2], [2016, 4.2], [2017, 4.2], [2018, 4.2], [2019, 4.2], [2020, 4.2], [2021, 11.4], [2022, 11.4], [2023, 11.4]], "latest": "5,7% (BNS) / 11,4% (WDPA)", "trend": "up", "good": true, "src": "WDPA / BNS", "year": "2023", "ro_t": "Ariile protejate s-au extins, dar rămân reduse. Datele naționale indică circa 5,7% din teritoriu, iar bazele internaționale (WDPA) circa 11,4%, urmare a includerii unor categorii suplimentare. Respectarea regimului de protecție rămâne o provocare.", "en_t": "Protected areas have expanded but remain limited. National data show about 5.7% of the territory, international databases (WDPA) about 11.4% after adding extra categories. Enforcing protection remains a challenge."}, {"id": "5.1", "cat": 5, "ro": "Poluarea aerului", "en": "Air pollution", "unit_ro": "emisii, mii tone", "unit_en": "emissions, kt", "chart": null, "series": null, "latest": "transport ↑", "trend": "up", "good": false, "src": "BNS", "year": "2023", "ro_t": "Poluarea aerului este determinată tot mai mult de transportul auto, ale cărui emisii cresc, în timp ce sursele staționare scad. Pe cap de locuitor, Republica Moldova este printre puținele țări europene cu o creștere a emisiilor.", "en_t": "Air pollution is increasingly driven by road transport, whose emissions are rising while stationary sources decline. Per capita, Moldova is among the few European countries with rising emissions."}, {"id": "5.2", "cat": 5, "ro": "Expunerea la particule fine (PM2.5)", "en": "Exposure to fine particles (PM2.5)", "unit_ro": "µg/m³", "unit_en": "µg/m³", "chart": null, "series": null, "latest": "în scădere / declining", "trend": "down", "good": true, "src": "OCDE", "year": "2021", "ro_t": "Expunerea medie la particule fine s-a redus, apropiindu-se de media europeană. Nivelurile rămân totuși peste recomandările OMS, episoadele fiind legate de transport, încălzirea rezidențială și arderea deșeurilor.", "en_t": "Average exposure to fine particles has fallen, approaching the European average. Levels still exceed WHO guidelines, with episodes tied to transport, residential heating and waste burning."}, {"id": "5.3", "cat": 5, "ro": "Accesul la apă potabilă sigură", "en": "Access to safe drinking water", "unit_ro": "% din populație", "unit_en": "% of population", "chart": "line", "series": [[2014, 72.4], [2015, 72.7], [2016, 73.0], [2017, 73.4], [2018, 73.7], [2019, 74.0], [2020, 74.4], [2021, 74.7], [2022, 75.1], [2023, 75.4], [2024, 75.8]], "latest": "75,8% (2024)", "trend": "up", "good": true, "src": "World Bank / OMS–UNICEF", "year": "2024", "ro_t": "Accesul la apă potabilă gestionată sigur a crescut constant, de la ~72% în 2014 la 75,8% în 2024, datorită extinderii rețelelor în mediul rural. Republica Moldova rămâne totuși sub media europeană (~98%).", "en_t": "Access to safely managed drinking water rose steadily, from ~72% in 2014 to 75.8% in 2024, thanks to rural network expansion. Moldova nevertheless remains below the European average (~98%)."}, {"id": "5.4", "cat": 5, "ro": "Sanitație și canalizare", "en": "Sanitation & sewerage", "unit_ro": "% din populație", "unit_en": "% of population", "chart": "line", "series": [[2014, 80.0], [2015, 80.7], [2016, 81.4], [2017, 82.2], [2018, 82.9], [2019, 83.7], [2020, 84.4], [2021, 85.2], [2022, 85.7], [2023, 86.3], [2024, 86.9]], "latest": "86,9% (2024)", "trend": "up", "good": true, "src": "World Bank / OMS–UNICEF", "year": "2024", "ro_t": "Accesul la sanitație cel puțin de bază a urcat la 86,9% în 2024. Extinderea rețelelor de canalizare rămâne însă mult în urma celor de apă, ceea ce creează presiuni asupra resurselor de apă prin epurare insuficientă.", "en_t": "Access to at least basic sanitation rose to 86.9% in 2024. Sewerage network expansion still lags far behind water supply, pressuring water resources through insufficient treatment."}, {"id": "6.1", "cat": 6, "ro": "Inovații în economia verde", "en": "Green-economy innovation", "unit_ro": "% tehnologii de mediu", "unit_en": "% environmental tech", "chart": null, "series": null, "latest": "~1/5 din inovații", "trend": "flat", "good": null, "src": "OCDE", "year": "2021", "ro_t": "Inovația de mediu rămâne redusă — circa o cincime din tehnologiile noi sunt de mediu. Programele de ecologizare a IMM-urilor și agenda de aderare la UE deschid perspective de dezvoltare a eco-inovației.", "en_t": "Environmental innovation stays low — about one fifth of new technologies are environmental. SME-greening programmes and the EU accession agenda open prospects for eco-innovation."}, {"id": "6.2", "cat": 6, "ro": "Cheltuieli publice pentru mediu", "en": "Public environmental spending", "unit_ro": "mil. MDL", "unit_en": "MDL million", "chart": "bar", "series": [[2019, 240], [2021, 240], [2024, 175], [2025, 175]], "latest": "175 mil. MDL (<0,1% PIB)", "trend": "down", "good": false, "src": "Min. Finanțelor", "year": "2025", "ro_t": "Finanțarea publică a mediului rămâne cronic insuficientă — circa 175 mil. MDL anual, sub 0,1% din PIB, mult sub media UE (>1,9% pentru cheltuieli totale). Fondul Ecologic Național a fost reorganizat în Fondul Național de Mediu.", "en_t": "Public environmental funding remains chronically insufficient — about MDL 175 million a year, under 0.1% of GDP, far below the EU average (>1.9% for total spending). The National Ecological Fund was reorganised into the National Environment Fund."}, {"id": "6.3", "cat": 6, "ro": "Subvenții pentru energie", "en": "Energy subsidies", "unit_ro": "mlrd. MDL", "unit_en": "MDL billion", "chart": "bar", "series": [["Pre-criză / Pre-crisis", 0.85], ["FRVE 2024–25", 2.69]], "latest": "~2,7 mlrd. MDL (2024–25)", "trend": "up", "good": null, "src": "OCDE / Guvern / PNUD", "year": "2024/25", "ro_t": "Criza energetică a transformat radical subvențiile: de la scutiri de taxe (<1 mlrd. MDL), la Fondul de reducere a vulnerabilității energetice, care a compensat facturile a circa 75% dintre gospodării și a mobilizat ~2,7 mlrd. MDL pentru sezonul 2024–2025.", "en_t": "The energy crisis radically reshaped subsidies: from tax breaks (<MDL 1 bn) to the Energy Vulnerability Reduction Fund, which compensated bills for about 75% of households and mobilised ~MDL 2.7 bn for the 2024–2025 season."}, {"id": "6.4", "cat": 6, "ro": "Cheltuieli private pentru mediu", "en": "Private environmental spending", "unit_ro": "mil. MDL", "unit_en": "MDL million", "chart": null, "series": null, "latest": "~250 mil. MDL", "trend": "flat", "good": false, "src": "BNS", "year": "2023", "ro_t": "Cheltuielile private de mediu se mențin la un nivel apropiat de cele publice, orientate spre apă uzată și deșeuri. Per total, cheltuielile de mediu rămân mult sub media UE, unde cele private le depășesc pe cele publice.", "en_t": "Private environmental spending stays close to the public level, focused on wastewater and waste. Overall, environmental spending remains far below the EU average, where private outlays exceed public ones."}, {"id": "6.5", "cat": 6, "ro": "Subvenții pentru agricultura ecologică", "en": "Organic-farming subsidies", "unit_ro": "% din fondul de subvenții", "unit_en": "% of subsidy fund", "chart": null, "series": null, "latest": "<0,2% din total", "trend": "flat", "good": false, "src": "AIPA", "year": "2023", "ro_t": "În pofida unui program dedicat și a unor subvenții majorate, resursele direcționate efectiv către agricultorii ecologici rămân foarte mici — sub 0,2% din fondul de subvenționare, reflectând dimensiunea redusă a sectorului.", "en_t": "Despite a dedicated programme and topped-up subsidies, funds actually reaching organic farmers stay tiny — under 0.2% of the subsidy envelope, reflecting the sector's small size."}]};
+const UI = {"ro": {"title": "Indicatorii Creșterii Verzi · Republica Moldova", "subtitle": "Tablou de bord interactiv bazat pe setul OCDE de indicatori ai creșterii verzi", "edition": "Ediția a III-a · date actualizate 2015–2024", "kpiHeading": "Indicatori-cheie", "allCats": "Toate categoriile", "latest": "Cea mai recentă valoare", "source": "Sursa", "trendUp": "în creștere", "trendDown": "în scădere", "trendFlat": "stabil", "methTitle": "Notă privind datele și metodologia", "methText": "Tabloul de bord extinde seriile până la cel mai recent an disponibil, păstrând sursele și metodologia raportului. Indicatorii socioeconomici sunt actualizați până în 2024 (preponderent Banca Mondială). PIB-ul per capita este exprimat în USD internațional la prețuri constante 2021. Emisiile provin din seria Băncii Mondiale (excl. LULUCF), care diferă ca acoperire de inventarul național. O parte dintre indicatorii de detaliu (energie pe sectoare, deșeuri, fertilizanți, apă, rețele, cheltuieli de mediu) provin din BNS și ministere; acolo unde cele mai recente serii dezagregate nu au putut fi extrase, este indicat explicit ultimul an disponibil.", "footerNote": "Elaborat pe baza Raportului național privind indicatorii creșterii verzi (ediția 2026). Surse: Banca Mondială, BNS, EUROSTAT, OCDE, FAO, Ministerul Finanțelor, Ministerul Energiei, MAIA, AIPA, PNUD.", "download": "Descarcă raportul complet", "indicatorsLabel": "indicatori", "noChart": "Date sintetice (fără serie cronologică)"}, "en": {"title": "Green Growth Indicators · Republic of Moldova", "subtitle": "Interactive dashboard based on the OECD green growth indicator set", "edition": "3rd edition · data updated 2015–2024", "kpiHeading": "Headline indicators", "allCats": "All categories", "latest": "Latest value", "source": "Source", "trendUp": "rising", "trendDown": "falling", "trendFlat": "stable", "methTitle": "Data & methodology note", "methText": "The dashboard extends each series to the latest available year, keeping the report's sources and methodology. Socioeconomic indicators are updated to 2024 (mainly World Bank). GDP per capita is in constant 2021 international dollars. Emissions use the World Bank series (excl. LULUCF), which differs in coverage from the national inventory. Several detailed indicators (sectoral energy, waste, fertilisers, water, networks, environmental spending) come from the National Bureau of Statistics and ministries; where the latest disaggregated series could not be extracted, the most recent available year is stated explicitly.", "footerNote": "Based on the National Report on Green Growth Indicators (2026 edition). Sources: World Bank, NBS, EUROSTAT, OECD, FAO, Ministry of Finance, Ministry of Energy, MAIA, AIPA, UNDP.", "download": "Download the full report", "indicatorsLabel": "indicators", "noChart": "Summary data (no time series)"}};
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+let LANG = (lsGet('ggi_lang')||'ro');
+let FILTER = 0; // 0 = all
+let charts = [];
+
+function t(k){return UI[LANG][k];}
+function destroyCharts(){charts.forEach(c=>{try{c.destroy()}catch(e){}});charts=[];}
+
+function trendChip(ind){
+  const map={up:'▲',down:'▼',flat:'▬'};
+  let cls = ind.good===true?'good':(ind.good===false?'bad':'neu');
+  const lbl = ind.trend==='up'?t('trendUp'):(ind.trend==='down'?t('trendDown'):t('trendFlat'));
+  return `<span class="chip ${cls}">${map[ind.trend]||''} ${lbl}</span>`;
+}
+
+function makeChart(canvas, ind){
+  const g='#2E7D32', o='#E65100', b='#1565C0';
+  const lab = s => s.map(p=>p[0]);
+  const dat = s => s.map(p=>p[1]);
+  let cfg;
+  const baseScales={x:{grid:{display:false},ticks:{font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:8}},
+    y:{grid:{color:'#eef2ee'},ticks:{font:{size:9}}}};
+  const noLeg={legend:{display:false}};
+  if(ind.chart==='bar'){
+    const vals=dat(ind.series);
+    cfg={type:'bar',data:{labels:lab(ind.series),datasets:[{data:vals,
+      backgroundColor:vals.map(v=>v<0?o:g),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:noLeg,scales:baseScales}};
+  } else if(ind.chart==='line2'){
+    cfg={type:'line',data:{labels:lab(ind.series),datasets:[
+      {label:LANG==='ro'?ind.s1_ro:ind.s1_en,data:dat(ind.series),borderColor:g,backgroundColor:'rgba(46,125,50,.08)',
+        fill:true,tension:.3,pointRadius:2,borderWidth:2.4},
+      {label:LANG==='ro'?ind.s2_ro:ind.s2_en,data:dat(ind.series2),borderColor:o,
+        fill:false,tension:.3,pointRadius:2,borderWidth:2.2}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,labels:{font:{size:10},boxWidth:12}}},scales:baseScales}};
+  } else { // line
+    cfg={type:'line',data:{labels:lab(ind.series),datasets:[{data:dat(ind.series),
+      borderColor:g,backgroundColor:'rgba(46,125,50,.10)',fill:true,tension:.3,pointRadius:2,borderWidth:2.4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:noLeg,scales:baseScales}};
+  }
+  charts.push(new Chart(canvas,cfg));
+}
+
+function render(){
+  document.documentElement.lang=LANG;
+  document.getElementById('ui-title').textContent=t('title');
+  document.getElementById('ui-subtitle').textContent=t('subtitle');
+  document.getElementById('ui-edition').textContent=t('edition');
+  document.getElementById('ui-meth-title').textContent=t('methTitle');
+  document.getElementById('ui-meth-text').textContent=t('methText');
+  document.getElementById('ui-footer').textContent=t('footerNote');
+  document.querySelector('#ui-download span').textContent=t('download');
+  document.getElementById('lang-ro').classList.toggle('on',LANG==='ro');
+  document.getElementById('lang-en').classList.toggle('on',LANG==='en');
+
+  // KPIs
+  document.getElementById('kpis').innerHTML=DATA.kpis.map(k=>`
+    <div class="kpi"><div class="v">${LANG==='ro'?k.val_ro:k.val_en}<span class="u">${k.unit}</span>
+      <span class="tr ${k.trend}">${k.trend==='up'?'▲':(k.trend==='down'?'▼':'▬')}</span></div>
+      <div class="l">${k[LANG]}</div></div>`).join('');
+
+  // nav pills (categories with indicators = 2..6)
+  const cats=DATA.cats.filter(c=>c.id>=2);
+  let nav=`<button class="pill ${FILTER===0?'on':''}" onclick="setFilter(0)">${t('allCats')}</button>`;
+  nav+=cats.map(c=>`<button class="pill ${FILTER===c.id?'on':''}" onclick="setFilter(${c.id})">${c.id}. ${c[LANG]}</button>`).join('');
+  document.getElementById('nav').innerHTML=nav;
+
+  // sections
+  destroyCharts();
+  const main=document.getElementById('main');
+  main.innerHTML='';
+  cats.forEach(c=>{
+    if(FILTER!==0 && FILTER!==c.id) return;
+    const inds=DATA.indicators.filter(i=>i.cat===c.id);
+    const sec=document.createElement('section');
+    sec.className='section';sec.id='cat'+c.id;
+    sec.innerHTML=`<div class="sechead"><div class="secnum">${c.id}</div><h2>${c[LANG]}</h2></div>
+      <div class="seccount">${inds.length} ${t('indicatorsLabel')}</div>
+      <div class="grid">${inds.map(cardHTML).join('')}</div>`;
+    main.appendChild(sec);
+  });
+  // init charts
+  DATA.indicators.forEach(ind=>{
+    if(!ind.chart) return;
+    const cv=document.getElementById('cv-'+ind.id.replace('.','_'));
+    if(cv) makeChart(cv,ind);
+  });
+}
+
+function cardHTML(ind){
+  const name=LANG==='ro'?ind.ro:ind.en;
+  const unit=LANG==='ro'?ind.unit_ro:ind.unit_en;
+  const interp=LANG==='ro'?ind.ro_t:ind.en_t;
+  const cid='cv-'+ind.id.replace('.','_');
+  const chartArea = ind.chart
+    ? `<div class="chartbox"><canvas id="${cid}" role="img" aria-label="${name} — ${ind.latest}"></canvas></div>`
+    : `<div class="nochart">${t('noChart')}</div>`;
+  const idlbl = ind.id.replace('b','');
+  return `<div class="card">
+    <div class="crow"><div><span class="cid">${idlbl}</span>
+      <div class="cname">${name}</div><div class="cunit">${unit}</div></div>
+      ${trendChip(ind)}</div>
+    <div class="cval">${ind.latest}</div>
+    ${chartArea}
+    <p class="interp">${interp}</p>
+    <div class="cfoot"><span>${t('source')}: ${ind.src}</span><span class="yr">${ind.year}</span></div>
+  </div>`;
+}
+
+function setLang(l){LANG=l;lsSet('ggi_lang',l);render();}
+function setFilter(f){FILTER=f;render();window.scrollTo({top:0,behavior:'smooth'});}
+render();
+</script>
+</body>
+</html>
